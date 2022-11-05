@@ -38,11 +38,11 @@ def reward_function(params):
     REINFORCE_FACTOR_1 = 1.2
     REINFORCE_FACTOR_2 = 1.5
     REINFORCE_FACTOR_3 = 1.15
-    REINFORCE_FACTOR_4 = 1.3
+    REINFORCE_FACTOR_4 = 1.28
     PUNISH_FACTOR_1 = 0.8
     PUNISH_FACTOR_2 = 0.5
     PUNISH_FACTOR_3 = 0.6
-    PUNISH_FACTOR_4 = 0.75
+    PUNISH_FACTOR_4 = 0.73
 
     # parameters
     track_width = params['track_width']
@@ -59,7 +59,7 @@ def reward_function(params):
     is_reversed = params['is_reversed']
     is_offtrack = params['is_offtrack']
 
-    reward = math.exp(distance_from_center)
+    reward = math.exp(-5 * distance_from_center)
 
     # reward class
     class RewardClass(object):
@@ -89,9 +89,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_straight_line(self, ret_reward, abs_steering, speed):
-            if abs_steering < 0.15 and speed > 2.0:
+            if abs_steering < 0.15 and speed > 2.3:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
-            elif abs_steering < 0.2 and speed > 1.7:
+            elif abs_steering < 0.2 and speed > 1.8:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
@@ -108,8 +108,13 @@ def reward_function(params):
 
             return ret_reward
         
-        def chk_steering(self, ret_reward, speed, steering):
-            if speed > 2.1 - (0.5 * abs(steering)):
+        def chk_steering(self, ret_reward, steering):
+            if abs(steering) > ABS_STEERING_THRESHOLD:
+                ret_reward *= 0.9
+            return ret_reward
+
+        def chk_steering_rate(self, ret_reward, speed, steering):
+            if speed > 2.5 - (0.4 * abs(steering)):
                 ret_reward = ret_reward * PUNISH_FACTOR_1
             return ret_reward
         
@@ -126,9 +131,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_speed(self, ret_reward, speed):
-            if speed < 1.2:
+            if speed < 1.3:
                 ret_reward = ret_reward * PUNISH_FACTOR_4
-            elif speed > 1.5:
+            elif speed > 1.6:
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
             return ret_reward
         
@@ -138,7 +143,8 @@ def reward_function(params):
     reward = r.chk_center_distance(reward, track_width, distance_from_center)
     reward = r.chk_straight_line(reward, abs_steering, speed)
     reward = r.chk_direction(reward, waypoints, closest_waypoints, heading)
-    reward = r.chk_steering(reward, speed, abs_steering)
+    reward = r.chk_steering(reward, abs_steering)
+    reward = r.chk_steering_rate(reward, speed, abs_steering)
     reward = r.chk_is_left_of_center(reward, is_left_of_center)
     reward = r.chk_progress(reward, progress)
     reward = r.chk_speed(reward, speed)
