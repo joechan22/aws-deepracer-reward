@@ -53,14 +53,22 @@ def reward_function(params):
     closest_waypoints = params['closest_waypoints'] 
     heading = params['heading']
     progress = params['progress']
+    is_crashed = params['is_crashed']
+    is_reversed = params['is_reversed']
+    is_offtrack = params['is_offtrack']
 
     import math
     reward = math.exp(distance_from_center)
 
     # reward class
     class RewardClass(self):
+        def chk_exception(ret_reward, exception):
+            if exception:
+                return LOWEST_REWARD
+            return DEFAULT_REWARD
+
         def chk_on_track(ret_reward, on_track):
-            if all_wheels_on_track:
+            if on_track:
                 return DEFAULT_REWARD
             return LOWEST_REWARD
         
@@ -124,6 +132,7 @@ def reward_function(params):
             return ret_reward
         
         r = RewardClass()
+        reward = r.chk_exception(reward, is_offtrack)
         reward = r.chk_on_track(reward, all_wheels_on_track)
         reward = r.chk_center_distance(reward, track_width, distance_from_center)
         reward = r.chk_straight_line(reward, abs_steering, speed)
@@ -132,5 +141,8 @@ def reward_function(params):
         reward = r.chk_is_left_of_center(reward, is_left_of_center)
         reward = r.chk_progress(reward, progress)
         reward = r.chk_speed(reward, speed)
+        
+        reward = r.chk_exception(reward, is_crashed)
+        reward = r.chk_exception(reward, is_reversed)
 
         return float(reward)
