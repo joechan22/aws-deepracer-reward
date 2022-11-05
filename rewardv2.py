@@ -88,7 +88,7 @@ def reward_function(params):
             return ret_reward
         
         def chk_straight_line(ret_reward, abs_steering, speed):
-            if abs_steering < 0.15 and speed > 2.0
+            if abs_steering < 0.15 and speed > 2.0:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
             elif abs_steering < 0.2 and speed > 1.7:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
@@ -131,18 +131,18 @@ def reward_function(params):
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
             return ret_reward
         
-        r = RewardClass()
-        reward = r.chk_exception(reward, is_offtrack)
-        reward = r.chk_on_track(reward, all_wheels_on_track)
-        reward = r.chk_center_distance(reward, track_width, distance_from_center)
-        reward = r.chk_straight_line(reward, abs_steering, speed)
-        reward = r.chk_direction(reward, waypoints, closest_waypoints, heading)
-        reward = r.chk_steering(reward, speed, abs_steering)
-        reward = r.chk_is_left_of_center(reward, is_left_of_center)
-        reward = r.chk_progress(reward, progress)
-        reward = r.chk_speed(reward, speed)
-        
-        reward = r.chk_exception(reward, is_crashed)
-        reward = r.chk_exception(reward, is_reversed)
+    r = RewardClass()
+    reward = r.chk_exception(reward, is_offtrack)
+    reward = r.chk_on_track(reward, all_wheels_on_track)
+    reward = r.chk_center_distance(reward, track_width, distance_from_center)
+    reward = r.chk_straight_line(reward, abs_steering, speed)
+    reward = r.chk_direction(reward, waypoints, closest_waypoints, heading)
+    reward = r.chk_steering(reward, speed, abs_steering)
+    reward = r.chk_is_left_of_center(reward, is_left_of_center)
+    reward = r.chk_progress(reward, progress)
+    reward = r.chk_speed(reward, speed)
+    
+    reward = r.chk_exception(reward, is_crashed)
+    reward = r.chk_exception(reward, is_reversed)
 
-        return float(reward)
+    return float(reward)
