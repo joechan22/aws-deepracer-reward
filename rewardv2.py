@@ -1,3 +1,5 @@
+import math
+
 def reward_function(params):
     """
     params
@@ -57,22 +59,21 @@ def reward_function(params):
     is_reversed = params['is_reversed']
     is_offtrack = params['is_offtrack']
 
-    import math
     reward = math.exp(distance_from_center)
 
     # reward class
-    class RewardClass(self):
-        def chk_exception(ret_reward, exception):
+    class RewardClass(object):
+        def chk_exception(self, ret_reward, exception):
             if exception:
                 return LOWEST_REWARD
             return DEFAULT_REWARD
 
-        def chk_on_track(ret_reward, on_track):
+        def chk_on_track(self, ret_reward, on_track):
             if on_track:
                 return DEFAULT_REWARD
             return LOWEST_REWARD
         
-        def chk_center_distance(ret_reward, width, distance):
+        def chk_center_distance(self, ret_reward, width, distance):
             marker_1 = 0.1 * width
             marker_2 = 0.3 * width
             marker_3 = 0.5 * width
@@ -87,14 +88,14 @@ def reward_function(params):
                 ret_reward = LOWEST_REWARD
             return ret_reward
         
-        def chk_straight_line(ret_reward, abs_steering, speed):
+        def chk_straight_line(self, ret_reward, abs_steering, speed):
             if abs_steering < 0.15 and speed > 2.0:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
             elif abs_steering < 0.2 and speed > 1.7:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
-        def chk_direction(ret_reward, waypoints, closest_waypoints, heading):
+        def chk_direction(self, ret_reward, waypoints, closest_waypoints, heading):
             next_waypoint = waypoints[closest_waypoints[1]]
             prev_waypoint = waypoints[closest_waypoints[0]]
 
@@ -107,24 +108,24 @@ def reward_function(params):
 
             return ret_reward
         
-        def chk_steering(ret_reward, speed, steering):
+        def chk_steering(self, ret_reward, speed, steering):
             if speed > 2.1 - (0.5 * abs(steering)):
                 ret_reward = ret_reward * PUNISH_FACTOR_1
             return ret_reward
         
-        def chk_is_left_of_center(ret_reward, is_left_of_center):
+        def chk_is_left_of_center(self, ret_reward, is_left_of_center):
             if is_left_of_center:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             else:
                 ret_reward = ret_reward * PUNISH_FACTOR_1
             return ret_reward
         
-        def chk_progress(ret_reward, progress):
+        def chk_progress(self, ret_reward, progress):
             if progress > PROGRESS_THRESHOLD:
                 ret_reward = ret_reward * REINFORCE_FACTOR_3
             return ret_reward
         
-        def chk_speed(ret_reward, speed):
+        def chk_speed(self, ret_reward, speed):
             if speed < 1.2:
                 ret_reward = ret_reward * PUNISH_FACTOR_4
             elif speed > 1.5:
