@@ -30,14 +30,14 @@ def reward_function(params):
     }
     """
 
-    DEFAULT_REWARD = 1.0
+    DEFAULT_REWARD = 1.0 # math.exp(-5 * distance_from_center)
     LOWEST_REWARD = 1e-3
-    DIRECTION_THRESHOLD = 10.0
-    ABS_STEERING_THRESHOLD = 25.0
+    DIRECTION_THRESHOLD = 8.0
+    ABS_STEERING_THRESHOLD = 20.0
     PROGRESS_THRESHOLD = 75
     REINFORCE_FACTOR_1 = 1.2
     REINFORCE_FACTOR_2 = 1.5
-    REINFORCE_FACTOR_3 = 1.15
+    REINFORCE_FACTOR_3 = 1.3
     REINFORCE_FACTOR_4 = 1.28
     PUNISH_FACTOR_1 = 0.8
     PUNISH_FACTOR_2 = 0.5
@@ -59,8 +59,6 @@ def reward_function(params):
     is_reversed = params['is_reversed']
     is_offtrack = params['is_offtrack']
 
-    # reward = math.exp(-5 * distance_from_center)
-
     # reward class
     class RewardClass(object):
         def chk_exception(self, ret_reward, exception):
@@ -75,7 +73,7 @@ def reward_function(params):
         
         def chk_center_distance(self, ret_reward, width, distance):
             marker_1 = 0.1 * width
-            marker_2 = 0.3 * width
+            marker_2 = 0.25 * width
             marker_3 = 0.5 * width
 
             if distance <= marker_1:
@@ -85,13 +83,13 @@ def reward_function(params):
             elif distance <= marker_3:
                 ret_reward = ret_reward * PUNISH_FACTOR_2
             else:
-                ret_reward = math.exp(-2 * distance_from_center)
+                ret_reward = LOWEST_REWARD
             return ret_reward
         
         def chk_straight_line(self, ret_reward, abs_steering, speed):
-            if abs_steering < 0.1 and speed >= 2.9:
+            if abs_steering < 0.1 and speed >= 2.8:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
-            elif abs_steering < 0.2 and speed > 2.1:
+            elif abs_steering < 0.2 and speed > 2.2:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
