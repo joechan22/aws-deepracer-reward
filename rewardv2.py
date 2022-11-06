@@ -89,9 +89,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_straight_line(self, ret_reward, abs_steering, speed):
-            if abs_steering < 0.15 and speed > 2.3:
+            if abs_steering < 0.1 and speed > 2.6:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
-            elif abs_steering < 0.2 and speed > 1.8:
+            elif abs_steering < 0.2 and speed > 2.0:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
@@ -110,11 +110,11 @@ def reward_function(params):
         
         def chk_steering(self, ret_reward, steering):
             if abs(steering) > ABS_STEERING_THRESHOLD:
-                ret_reward *= 0.9
+                ret_reward = ret_reward * PUNISH_FACTOR_1
             return ret_reward
 
         def chk_steering_rate(self, ret_reward, speed, steering):
-            if speed > 2.5 - (0.4 * abs(steering)):
+            if speed > 2.9 - (0.4 * abs(steering)):
                 ret_reward = ret_reward * PUNISH_FACTOR_1
             return ret_reward
         
@@ -131,9 +131,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_speed(self, ret_reward, speed):
-            if speed < 1.3:
+            if speed < 1.5:
                 ret_reward = ret_reward * PUNISH_FACTOR_4
-            elif speed > 1.6:
+            elif speed > 1.8:
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
             return ret_reward
         
