@@ -38,11 +38,11 @@ def reward_function(params):
     REINFORCE_FACTOR_1 = 1.2
     REINFORCE_FACTOR_2 = 1.5
     REINFORCE_FACTOR_3 = 1.15
-    REINFORCE_FACTOR_4 = 1.28
+    REINFORCE_FACTOR_4 = 1.3
     PUNISH_FACTOR_1 = 0.8
     PUNISH_FACTOR_2 = 0.5
     PUNISH_FACTOR_3 = 0.6
-    PUNISH_FACTOR_4 = 0.73
+    PUNISH_FACTOR_4 = 0.72
 
     # parameters
     track_width = params['track_width']
@@ -66,11 +66,11 @@ def reward_function(params):
         def chk_exception(self, ret_reward, exception):
             if exception:
                 return LOWEST_REWARD
-            return DEFAULT_REWARD
+            return ret_reward
 
         def chk_on_track(self, ret_reward, on_track):
             if on_track:
-                return DEFAULT_REWARD
+                return ret_reward
             return LOWEST_REWARD
         
         def chk_center_distance(self, ret_reward, width, distance):
@@ -89,9 +89,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_straight_line(self, ret_reward, abs_steering, speed):
-            if abs_steering < 0.1 and speed > 2.6:
+            if abs_steering < 0.1 and speed > 2.5:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
-            elif abs_steering < 0.2 and speed > 2.0:
+            elif abs_steering < 0.2 and speed > 1.75:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
@@ -131,9 +131,9 @@ def reward_function(params):
             return ret_reward
         
         def chk_speed(self, ret_reward, speed):
-            if speed < 1.5:
+            if speed < 1.4:
                 ret_reward = ret_reward * PUNISH_FACTOR_4
-            elif speed > 1.8:
+            elif speed > 2.2:
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
             return ret_reward
         
