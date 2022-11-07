@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 def reward_function(params):
     """
@@ -58,6 +59,7 @@ def reward_function(params):
     is_crashed = params['is_crashed']
     is_reversed = params['is_reversed']
     is_offtrack = params['is_offtrack']
+    steps = params['steps']
 
     # reward class
     class RewardClass(object):
@@ -90,6 +92,43 @@ def reward_function(params):
             if abs_steering < 0.1 and speed >= 2.8:
                 ret_reward = ret_reward * REINFORCE_FACTOR_2
             elif abs_steering < 0.2 and speed > 2.2:
+                ret_reward = ret_reward * REINFORCE_FACTOR_1
+            return ret_reward
+        
+        def is_speed_up(self, ret_reward, waypoints, closest_waypoints, speed, min_step=3, future_step=7):
+            speed_up = False
+            next_waypoint = waypoints[closest_waypoints[1]]
+            prev_waypoint = waypoints[closest_waypoints[0]]
+            further_waypoint = waypoints[min(len(waypoints) - 1, closest_waypoints[1] + future_step)]
+
+            direction_degree = math.degrees(math.atan2(prev_waypoint[1] - next_waypoint[1], 
+                                                        prev_waypoint[0] - next_waypoint[0]))
+            future_degree = math.degrees(math.atan2(prev_waypoint[1] - further_waypoint[1], 
+                                                 prev_waypoint[0]-further_waypoint[0]))
+
+            difference = abs(direction_degree - future_degree)
+            
+            distance = np.linalg.norm([next_waypoint[0] - further_waypoint[0],
+                                      next_waypoint[1] - further_waypoint[1]]) 
+            
+            diff = difference if difference < 180 else 360 - difference
+
+            if difference < DIRECTION_THRESHOLD:
+                speed_up = True
+            else:
+                if distance < 1.1:
+                    speed_up = False
+                else:
+                    further_waypoint = waypoints[min(len(waypoints) - 1, closest_waypoints[1] + min_step)]
+                    future_degree = math.degrees(math.atan2(prev_waypoint[1] - further_waypoint[1], 
+                                                            prev_waypoint[0]-further_waypoint[0]))
+                    difference = abs(direction_degree - future_degree)
+                    diff = difference if difference < 180 else 360 - difference
+                    if diff < DIRECTION_THRESHOLD:
+                        speed_up = True
+            if speed_up and speed > 2.2:
+                ret_reward = ret_reward * REINFORCE_FACTOR_4
+            elif not speed_up and speed < 1.8:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
@@ -137,18 +176,28 @@ def reward_function(params):
         
     r = RewardClass()
     reward = DEFAULT_REWARD
-    reward = r.chk_exception(reward, is_offtrack)
-    reward = r.chk_on_track(reward, all_wheels_on_track)
-    reward = r.chk_center_distance(reward, track_width, distance_from_center)
-    reward = r.chk_straight_line(reward, abs_steering, speed)
-    reward = r.chk_direction(reward, waypoints, closest_waypoints, heading)
-    reward = r.chk_steering(reward, abs_steering)
-    reward = r.chk_steering_rate(reward, speed, abs_steering)
-    reward = r.chk_is_left_of_center(reward, is_left_of_center)
-    reward = r.chk_progress(reward, progress)
-    reward = r.chk_speed(reward, speed)
+    # reward = r.chk_exception(reward, is_offtrack)
+    # reward = r.chk_on_track(reward, all_wheels_on_track)
+    # reward = r.chk_center_distance(reward, track_width, distance_from_center)
+    # reward = r.chk_straight_line(reward, abs_steering, speed)
+    # reward = r.chk_direction(reward, waypoints, closest_waypoints, heading)
+    # reward = r.chk_steering(reward, abs_steering)
+    # reward = r.chk_steering_rate(reward, speed, abs_steering)
+    # reward = r.chk_is_left_of_center(reward, is_left_of_center)
+    # reward = r.chk_progress(reward, progress)
+    # reward = r.chk_speed(reward, speed)
     
+    # reward = r.chk_exception(reward, is_crashed)
+    # reward = r.chk_exception(reward, is_reversed)
+
+    reward = r.chk_on_track(reward, all_wheels_on_track)
+    reward = r.chk_exception(reward, is_offtrack)
     reward = r.chk_exception(reward, is_crashed)
     reward = r.chk_exception(reward, is_reversed)
+    reward = r.chk_center_distance(reward, track_width, distance_from_center)
+    reward = r.is_speed_up(reward, waypoints, closest_waypoints, speed)
+    reward = r.chk_is_left_of_center(reward, is_left_of_center)
+    reward = r.chk_progress(reward, progress)
+    # reward = r.chk_speed(reward, speed)
 
     return float(reward)
