@@ -95,7 +95,7 @@ def reward_function(params):
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
-        def is_speed_up(self, ret_reward, waypoints, closest_waypoints, speed, min_step=3, future_step=7):
+        def is_speed_up(self, ret_reward, waypoints, closest_waypoints, speed, min_step=3, future_step=8):
             speed_up = False
             next_waypoint = waypoints[closest_waypoints[1]]
             prev_waypoint = waypoints[closest_waypoints[0]]
@@ -126,9 +126,9 @@ def reward_function(params):
                     diff = difference if difference < 180 else 360 - difference
                     if diff < DIRECTION_THRESHOLD:
                         speed_up = True
-            if speed_up and speed > 2.2:
+            if speed_up and speed > 2.0:
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
-            elif not speed_up and speed < 1.8:
+            elif not speed_up and speed < 1.25:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
