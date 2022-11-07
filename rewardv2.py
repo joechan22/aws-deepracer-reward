@@ -126,9 +126,9 @@ def reward_function(params):
                     diff = difference if difference < 180 else 360 - difference
                     if diff < DIRECTION_THRESHOLD:
                         speed_up = True
-            if speed_up and speed > 2.0:
+            if speed_up and speed > 2.1:
                 ret_reward = ret_reward * REINFORCE_FACTOR_4
-            elif not speed_up and speed < 1.25:
+            elif not speed_up and speed < 1.6:
                 ret_reward = ret_reward * REINFORCE_FACTOR_1
             return ret_reward
         
